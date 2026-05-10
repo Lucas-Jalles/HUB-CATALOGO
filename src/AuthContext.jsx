@@ -11,8 +11,9 @@ export function AuthProvider({ children }) {
     const token = sessionStorage.getItem('token');
     const email = sessionStorage.getItem('email');
     const role = sessionStorage.getItem('role');
+    const id = sessionStorage.getItem('id');
     if (token && email) {
-      setUser({ email, token, role });
+      setUser({ id, email, token, role });
     }
     setLoading(false);
   }, []);
@@ -27,11 +28,12 @@ export function AuthProvider({ children }) {
       }
 
       if (response.data?.status === 'success') {
-        const { token, email: emailLogado, role } = response.data.data;
+        const { token, email: emailLogado, role, id } = response.data.data;
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('email', emailLogado);
         if (role) sessionStorage.setItem('role', role);
-        setUser({ email: emailLogado, token, role: role || 'user' });
+        if (id) sessionStorage.setItem('id', id);
+        setUser({ id, email: emailLogado, token, role: role || 'user' });
         return true;
       }
       
@@ -60,6 +62,7 @@ export function AuthProvider({ children }) {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('email');
     sessionStorage.removeItem('role');
+    sessionStorage.removeItem('id');
     setUser(null);
   };
 
