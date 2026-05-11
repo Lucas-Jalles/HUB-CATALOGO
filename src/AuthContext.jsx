@@ -15,6 +15,20 @@ export function AuthProvider({ children }) {
     const safeRole = String(role || 'user').trim().toLowerCase();
     if (token && email) {
       setUser({ id, email, token, role: safeRole });
+
+      // Sincronização de segurança em background
+      // Corrige o caso onde o backend (Google Scripts) não retorna o "role" na hora do login.
+      api.get('', { params: { action: 'get_usuarios' } })
+        .then(res => {
+          if (res.data?.status === 'success') {
+            const myUser = (res.data.data || []).find(u => String(u.email).toLowerCase() === String(email).toLowerCase());
+            if (myUser) {
+              const realRole = String(myUser.role || 'user').trim().toLowerCase();
+              sessionStorage.setItem('role', realRole);
+              setUser(prev => prev ? { ...prev, role: realRole } : null);
+            }
+          }
+        }).catch(() => {});
     }
     setLoading(false);
   }, []);
@@ -36,6 +50,20 @@ export function AuthProvider({ children }) {
         sessionStorage.setItem('role', safeRole);
         if (id) sessionStorage.setItem('id', id);
         setUser({ id, email: emailLogado, token, role: safeRole });
+
+        // Força a atualização do cargo buscando da lista geral logo após o login
+        api.get('', { params: { action: 'get_usuarios' } })
+          .then(res => {
+            if (res.data?.status === 'success') {
+              const myUser = (res.data.data || []).find(u => String(u.email).toLowerCase() === String(emailLogado).toLowerCase());
+              if (myUser) {
+                const realRole = String(myUser.role || 'user').trim().toLowerCase();
+                sessionStorage.setItem('role', realRole);
+                setUser(prev => prev ? { ...prev, role: realRole } : null);
+              }
+            }
+          }).catch(() => {});
+
         return true;
       }
       
@@ -68,7 +96,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const isAdmin = String(user?.role || '').trim().toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'lucasjalles333@gmail.com';
+  const isAdmin = String(user?.role || '').trim().toLowerCase().includes('adm') || user?.email?.toLowerCase() === 'lucasjalles333@gmail.com';
 
   return (
     <AuthContext.Provider value={{ user, signed: !!user, loading, login, logout, recoverPassword, isAdmin }}>

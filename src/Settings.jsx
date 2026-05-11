@@ -228,11 +228,15 @@ export default function Settings() {
 
   const { mutate: createUsuario, isPending: isCreatingUser } = useMutation({
     mutationFn: (data) => api.post('', { action: 'create_usuario', data }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       setNewEmail('');
       setNewSenha('');
       setNewRole('user');
-      alert("✅ Usuário criado com sucesso!");
+      if (variables.role && variables.role.includes('adm')) {
+        alert("✅ Usuário criado com sucesso! Como ele é administrador, ele já terá acesso à aba de Ferramentas ao fazer login.");
+      } else {
+        alert("✅ Usuário criado com sucesso!");
+      }
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
     },
     onError: () => alert("❌ Falha na conexão."),
@@ -261,6 +265,8 @@ export default function Settings() {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
       if (variables.id === user?.id && variables.role !== user?.role) {
         alert('⚠️ Você alterou sua própria função. Por favor, encerre a sessão e faça login novamente para aplicar a mudança.');
+      } else if (variables.role && variables.role !== 'user') {
+        alert('✅ Função atualizada! Avise ao usuário que ele precisa fazer LOGOUT (Sair) e LOGIN novamente para que a aba de Ferramentas apareça para ele.');
       }
     },
     onError: () => alert('❌ Falha na conexão.'),
@@ -268,7 +274,8 @@ export default function Settings() {
 
   const handleStartEditUser = (user) => {
     setEditingUserId(user.id);
-    setEditUserRole(String(user.role || 'user').trim().toLowerCase());
+    const roleNorm = String(user.role || 'user').trim().toLowerCase();
+    setEditUserRole(roleNorm.includes('adm') ? 'admin' : 'user');
     setEditUserSenha('');
   };
 
@@ -513,7 +520,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-white">{user?.email}</h4>
-              <p className="text-gray-400 text-sm mt-1">{String(user?.role || '').trim().toLowerCase() === 'admin' ? 'Administrador do Sistema' : 'Usuário Padrão'}</p>
+              <p className="text-gray-400 text-sm mt-1">{String(user?.role || '').trim().toLowerCase().includes('adm') ? 'Administrador do Sistema' : 'Usuário Padrão'}</p>
                 </div>
               </div>
 
@@ -586,7 +593,7 @@ export default function Settings() {
                             <>
                               <td className="p-3 text-white font-medium flex items-center gap-2"><User size={16} className="text-gray-500" /> {usr.email}</td>
                               <td className="p-3">
-                            <select value={String(editUserRole || 'user').trim().toLowerCase()} onChange={e => setEditUserRole(e.target.value)} className="w-full bg-gray-950 border border-gray-600 text-white rounded-lg p-2 outline-none text-sm focus:border-blue-500">
+                            <select value={editUserRole} onChange={e => setEditUserRole(e.target.value)} className="w-full bg-gray-950 border border-gray-600 text-white rounded-lg p-2 outline-none text-sm focus:border-blue-500">
                                   <option value="user">Usuário Comum</option>
                                   <option value="admin">Administrador</option>
                                 </select>
@@ -600,7 +607,7 @@ export default function Settings() {
                           ) : (
                             <>
                               <td className="p-4 text-white font-medium flex items-center gap-2"><User size={16} className="text-gray-500" /> {usr.email}</td>
-                            <td className="p-4 text-gray-400 text-sm">{String(usr.role || '').trim().toLowerCase() === 'admin' ? 'Administrador' : 'Usuário'}</td>
+                            <td className="p-4 text-gray-400 text-sm">{String(usr.role || '').trim().toLowerCase().includes('adm') ? 'Administrador' : 'Usuário'}</td>
                               <td className="p-4 text-gray-400 text-sm">{new Date(usr.criado_em).toLocaleDateString('pt-BR')}</td>
                               <td className="p-4 text-right flex items-center justify-end gap-1">
                                 <button onClick={() => handleStartEditUser(usr)} className="text-blue-400 hover:bg-blue-400/10 p-1.5 rounded transition-colors" title="Editar"><Edit2 size={16} /></button>

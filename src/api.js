@@ -70,6 +70,7 @@ api.post = async (url, data, config) => {
   if (action.includes('operadora')) delete memoryCache['get_operadoras'];
   if (action.includes('pasta') || action.includes('categoria')) delete memoryCache['get_pastas'];
   if (action.includes('tag')) delete memoryCache['get_tags'];
+  if (action.includes('usuario')) delete memoryCache['get_usuarios'];
   
   return response;
 };
