@@ -268,7 +268,7 @@ export default function Settings() {
 
   const handleStartEditUser = (user) => {
     setEditingUserId(user.id);
-    setEditUserRole(user.role || 'user');
+    setEditUserRole(String(user.role || 'user').trim().toLowerCase());
     setEditUserSenha('');
   };
 
@@ -513,7 +513,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-white">{user?.email}</h4>
-                  <p className="text-gray-400 text-sm mt-1">{user?.role === 'admin' ? 'Administrador do Sistema' : 'Usuário Padrão'}</p>
+              <p className="text-gray-400 text-sm mt-1">{String(user?.role || '').trim().toLowerCase() === 'admin' ? 'Administrador do Sistema' : 'Usuário Padrão'}</p>
                 </div>
               </div>
 
@@ -586,7 +586,7 @@ export default function Settings() {
                             <>
                               <td className="p-3 text-white font-medium flex items-center gap-2"><User size={16} className="text-gray-500" /> {usr.email}</td>
                               <td className="p-3">
-                                <select value={editUserRole} onChange={e => setEditUserRole(e.target.value)} className="w-full bg-gray-950 border border-gray-600 text-white rounded-lg p-2 outline-none text-sm focus:border-blue-500">
+                            <select value={String(editUserRole || 'user').trim().toLowerCase()} onChange={e => setEditUserRole(e.target.value)} className="w-full bg-gray-950 border border-gray-600 text-white rounded-lg p-2 outline-none text-sm focus:border-blue-500">
                                   <option value="user">Usuário Comum</option>
                                   <option value="admin">Administrador</option>
                                 </select>
@@ -600,7 +600,7 @@ export default function Settings() {
                           ) : (
                             <>
                               <td className="p-4 text-white font-medium flex items-center gap-2"><User size={16} className="text-gray-500" /> {usr.email}</td>
-                              <td className="p-4 text-gray-400 text-sm">{usr.role === 'admin' ? 'Administrador' : 'Usuário'}</td>
+                            <td className="p-4 text-gray-400 text-sm">{String(usr.role || '').trim().toLowerCase() === 'admin' ? 'Administrador' : 'Usuário'}</td>
                               <td className="p-4 text-gray-400 text-sm">{new Date(usr.criado_em).toLocaleDateString('pt-BR')}</td>
                               <td className="p-4 text-right flex items-center justify-end gap-1">
                                 <button onClick={() => handleStartEditUser(usr)} className="text-blue-400 hover:bg-blue-400/10 p-1.5 rounded transition-colors" title="Editar"><Edit2 size={16} /></button>

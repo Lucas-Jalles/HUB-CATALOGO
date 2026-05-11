@@ -12,8 +12,9 @@ export function AuthProvider({ children }) {
     const email = sessionStorage.getItem('email');
     const role = sessionStorage.getItem('role');
     const id = sessionStorage.getItem('id');
+    const safeRole = String(role || 'user').trim().toLowerCase();
     if (token && email) {
-      setUser({ id, email, token, role: role || 'user' });
+      setUser({ id, email, token, role: safeRole });
     }
     setLoading(false);
   }, []);
@@ -29,11 +30,12 @@ export function AuthProvider({ children }) {
 
       if (response.data?.status === 'success') {
         const { token, email: emailLogado, role, id } = response.data.data;
+        const safeRole = String(role || 'user').trim().toLowerCase();
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('email', emailLogado);
-        sessionStorage.setItem('role', role || 'user');
+        sessionStorage.setItem('role', safeRole);
         if (id) sessionStorage.setItem('id', id);
-        setUser({ id, email: emailLogado, token, role: role || 'user' });
+        setUser({ id, email: emailLogado, token, role: safeRole });
         return true;
       }
       
@@ -66,7 +68,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase() === 'lucasjalles333@gmail.com';
+  const isAdmin = String(user?.role || '').trim().toLowerCase() === 'admin' || user?.email?.toLowerCase() === 'lucasjalles333@gmail.com';
 
   return (
     <AuthContext.Provider value={{ user, signed: !!user, loading, login, logout, recoverPassword, isAdmin }}>
