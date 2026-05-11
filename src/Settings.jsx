@@ -256,9 +256,12 @@ export default function Settings() {
 
   const { mutate: updateUsuario, isPending: isUpdatingUser } = useMutation({
     mutationFn: (data) => api.post('', { action: 'update_usuario', data }),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       setEditingUserId(null);
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
+      if (variables.id === user?.id && variables.role !== user?.role) {
+        alert('⚠️ Você alterou sua própria função. Por favor, encerre a sessão e faça login novamente para aplicar a mudança.');
+      }
     },
     onError: () => alert('❌ Falha na conexão.'),
   });

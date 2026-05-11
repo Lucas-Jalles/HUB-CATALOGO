@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
     const role = sessionStorage.getItem('role');
     const id = sessionStorage.getItem('id');
     if (token && email) {
-      setUser({ id, email, token, role });
+      setUser({ id, email, token, role: role || 'user' });
     }
     setLoading(false);
   }, []);
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
         const { token, email: emailLogado, role, id } = response.data.data;
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('email', emailLogado);
-        if (role) sessionStorage.setItem('role', role);
+        sessionStorage.setItem('role', role || 'user');
         if (id) sessionStorage.setItem('id', id);
         setUser({ id, email: emailLogado, token, role: role || 'user' });
         return true;

@@ -15,6 +15,14 @@ function PrivateRoute({ children }) {
   return signed ? children : <Navigate to="/login" />;
 }
 
+function AdminRoute({ children }) {
+  const { signed, loading, isAdmin } = useAuth();
+  
+  if (loading) return <div className="h-screen flex items-center justify-center bg-gray-950 text-white">Carregando...</div>;
+  if (!signed) return <Navigate to="/login" />;
+  return isAdmin ? children : <Navigate to="/" />;
+}
+
 function CommandPaletteWrapper() {
   const { signed } = useAuth();
   return signed ? <CommandPalette /> : null;
@@ -29,8 +37,8 @@ export default function App() {
           <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="json" element={<JsonFormatter />} />
-            <Route path="automation" element={<Automation />} />
+            <Route path="json" element={<AdminRoute><JsonFormatter /></AdminRoute>} />
+            <Route path="automation" element={<AdminRoute><Automation /></AdminRoute>} />
           </Route>
         </Routes>
         <CommandPaletteWrapper />
